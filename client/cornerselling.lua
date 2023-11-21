@@ -36,7 +36,7 @@ end
 
 local function RobberyPed()
     if Config.UseTarget then
-        exports['qb-target']:AddEntityZone('stealingPed', stealingPed,{
+        exports['slk-target']:AddEntityZone('stealingPed', stealingPed,{
             name = 'stealingPed',
             debugPoly = false,
         },{
@@ -53,11 +53,11 @@ local function RobberyPed()
                         TaskPlayAnim(player, "pickup_object", "pickup_low", 8.0, -8.0, -1, 1, 0, false, false, false)
                         Wait(2000)
                         ClearPedTasks(player)
-                        TriggerServerEvent('qb-drugs:server:giveStealItems', stealData.item, stealData.amount)
+                        TriggerServerEvent('slk-drugs:server:giveStealItems', stealData.item, stealData.amount)
                         TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items[stealData.item], "add")
                         stealingPed = nil
                         stealData = {}
-                        exports['qb-target']:RemoveZone('stealingPed')
+                        exports['slk-target']:RemoveZone('stealingPed')
                     end,
                     canInteract = function(entity)
                         if IsEntityDead(entity) then
@@ -77,7 +77,7 @@ local function RobberyPed()
                 if dist > 100 then
                     stealingPed = nil
                     stealData = {}
-                    exports['qb-target']:RemoveZone('stealingPed')
+                    exports['slk-target']:RemoveZone('stealingPed')
                     break
                 end
                 Wait(0)
@@ -93,10 +93,10 @@ local function RobberyPed()
                     if not Config.UseTarget and #(pos - pedpos) < 1.5 then
                         if not textDrawn then
                             textDrawn = true
-                            exports['qb-core']:DrawText(Lang:t("info.pick_up_button"))
+                            exports['slk-core']:DrawText(Lang:t("info.pick_up_button"))
                         end
                         if IsControlJustReleased(0, 38) then
-                            exports['qb-core']:KeyPressed()
+                            exports['slk-core']:KeyPressed()
                             textDrawn = false
                             RequestAnimDict("pickup_object")
                             while not HasAnimDictLoaded("pickup_object") do
@@ -105,7 +105,7 @@ local function RobberyPed()
                             TaskPlayAnim(playerPed, "pickup_object", "pickup_low", 8.0, -8.0, -1, 1, 0, false, false, false)
                             Wait(2000)
                             ClearPedTasks(playerPed)
-                            TriggerServerEvent('qb-drugs:server:giveStealItems', stealData.item, stealData.amount)
+                            TriggerServerEvent('slk-drugs:server:giveStealItems', stealData.item, stealData.amount)
                             TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items[stealData.item], "add")
                             stealingPed = nil
                             stealData = {}
@@ -187,7 +187,7 @@ local function SellToPed(ped)
             local pedCoords2 = GetEntityCoords(ped)
             local pedDist2 = #(coords2 - pedCoords2)
             if getRobbed <= Config.RobberyChance then
-                TriggerServerEvent('qb-drugs:server:robCornerDrugs', drugType, bagAmount)
+                TriggerServerEvent('slk-drugs:server:robCornerDrugs', drugType, bagAmount)
                 QBCore.Functions.Notify(Lang:t("info.has_been_robbed", {bags = bagAmount, drugType = availableDrugs[drugType].label}))
                 stealingPed = ped
                 stealData = {
@@ -207,7 +207,7 @@ local function SellToPed(ped)
                 if pedDist2 < 1.5 and cornerselling then
                     if Config.UseTarget and not zoneMade then
                         zoneMade = true
-                        exports['qb-target']:AddEntityZone('sellingPed', ped, {
+                        exports['slk-target']:AddEntityZone('sellingPed', ped, {
                             name = 'sellingPed',
                             debugPoly = false,
                         }, {
@@ -223,7 +223,7 @@ local function SellToPed(ped)
                                             SetEntityAsNoLongerNeeded(entity)
                                             ClearPedTasksImmediately(entity)
                                             lastPed[#lastPed + 1] = entity
-                                            exports['qb-target']:RemoveZone('sellingPed')
+                                            exports['slk-target']:RemoveZone('sellingPed')
                                             return
                                         else
                                             QBCore.Functions.Progressbar("cornerSelling", Lang:t("info.selling_to_ped"), '5000', false, false, {
@@ -232,7 +232,7 @@ local function SellToPed(ped)
                                                 disableMouse = false,
                                                 disableCombat = false,
                                             }, {}, {}, {}, function()
-                                                TriggerServerEvent('qb-drugs:server:sellCornerDrugs', drugType, bagAmount, randomPrice)
+                                                TriggerServerEvent('slk-drugs:server:sellCornerDrugs', drugType, bagAmount, randomPrice)
                                                 hasTarget = false
                                                 LoadAnimDict("gestures@f@standing@casual")
                                                 TaskPlayAnim(PlayerPedId(), "gestures@f@standing@casual", "gesture_point", 3.0, 3.0, -1, 49, 0, 0, 0, 0)
@@ -242,7 +242,7 @@ local function SellToPed(ped)
                                                 SetEntityAsNoLongerNeeded(entity)
                                                 ClearPedTasksImmediately(entity)
                                                 lastPed[#lastPed + 1] = entity
-                                                exports['qb-target']:RemoveZone('sellingPed')
+                                                exports['slk-target']:RemoveZone('sellingPed')
                                                 PoliceCall()
                                             end)
                                         end
@@ -258,7 +258,7 @@ local function SellToPed(ped)
                                         SetEntityAsNoLongerNeeded(entity)
                                         ClearPedTasksImmediately(entity)
                                         lastPed[#lastPed + 1] = entity
-                                        exports['qb-target']:RemoveZone('sellingPed')
+                                        exports['slk-target']:RemoveZone('sellingPed')
                                     end,
                                 },
                             },
@@ -267,12 +267,12 @@ local function SellToPed(ped)
                     elseif not Config.UseTarget then
                         if not textDrawn then
                             textDrawn = true
-                            exports['qb-core']:DrawText(Lang:t("info.drug_offer", {bags = bagAmount, drugLabel = currentOfferDrug.label, randomPrice = randomPrice}))
+                            exports['slk-core']:DrawText(Lang:t("info.drug_offer", {bags = bagAmount, drugLabel = currentOfferDrug.label, randomPrice = randomPrice}))
                         end
                         if IsControlJustPressed(0, 38) then
                             if IsPedInAnyVehicle(PlayerPedId(), false) then
                                 QBCore.Functions.Notify(Lang:t("error.in_vehicle"), 'error')
-                                exports['qb-core']:KeyPressed()
+                                exports['slk-core']:KeyPressed()
                                 textDrawn = false
                                 hasTarget = false
                                 SetPedKeepTask(ped, false)
@@ -281,7 +281,7 @@ local function SellToPed(ped)
                                 lastPed[#lastPed + 1] = ped
                                 break
                             else
-                                exports['qb-core']:KeyPressed()
+                                exports['slk-core']:KeyPressed()
                                 textDrawn = false
                                 QBCore.Functions.Progressbar("cornerSelling", Lang:t("info.selling_to_ped"), '5000', false, false, {
                                     disableMovement = true,
@@ -289,7 +289,7 @@ local function SellToPed(ped)
                                     disableMouse = false,
                                     disableCombat = false,
                                 }, {}, {}, {}, function()
-                                    TriggerServerEvent('qb-drugs:server:sellCornerDrugs', drugType, bagAmount, randomPrice)
+                                    TriggerServerEvent('slk-drugs:server:sellCornerDrugs', drugType, bagAmount, randomPrice)
                                     hasTarget = false
                                     LoadAnimDict("gestures@f@standing@casual")
                                     TaskPlayAnim(PlayerPedId(), "gestures@f@standing@casual", "gesture_point", 3.0, 3.0, -1, 49, 0, 0, 0, 0)
@@ -304,7 +304,7 @@ local function SellToPed(ped)
                             end
                         end
                         if IsControlJustPressed(0, 47) then
-                            exports['qb-core']:KeyPressed()
+                            exports['slk-core']:KeyPressed()
                             textDrawn = false
                             QBCore.Functions.Notify(Lang:t("error.offer_declined"), 'error')
                             hasTarget = false
@@ -318,10 +318,10 @@ local function SellToPed(ped)
                 else
                     if Config.UseTarget then
                         zoneMade = false
-                        exports['qb-target']:RemoveZone('sellingPed')
+                        exports['slk-target']:RemoveZone('sellingPed')
                     else
                         if textDrawn then
-                            exports['qb-core']:HideText()
+                            exports['slk-core']:HideText()
                             textDrawn = false
                         end
                     end
@@ -379,8 +379,8 @@ local function ToggleSelling()
 end
 
 -- Events
-RegisterNetEvent('qb-drugs:client:cornerselling', function()
-    QBCore.Functions.TriggerCallback('qb-drugs:server:cornerselling:getAvailableDrugs', function(result)
+RegisterNetEvent('slk-drugs:client:cornerselling', function()
+    QBCore.Functions.TriggerCallback('slk-drugs:server:cornerselling:getAvailableDrugs', function(result)
         if CurrentCops >= Config.MinimumDrugSalePolice then
             if IsPedInAnyVehicle(PlayerPedId(), false) then
                 QBCore.Functions.Notify(Lang:t("error.in_vehicle"), 'error')
@@ -403,7 +403,7 @@ RegisterNetEvent('police:SetCopCount', function(amount)
     CurrentCops = amount
 end)
 
-RegisterNetEvent('qb-drugs:client:refreshAvailableDrugs', function(items)
+RegisterNetEvent('slk-drugs:client:refreshAvailableDrugs', function(items)
     availableDrugs = items
     if availableDrugs == nil or #availableDrugs <= 0 then
         QBCore.Functions.Notify(Lang:t("error.no_drugs_left"), 'error')

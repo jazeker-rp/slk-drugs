@@ -1,20 +1,20 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QB-Drugs'
+description 'slk-Drugs'
 version '1.3'
 
 shared_scripts{
     'config.lua',
-    '@qb-core/shared/locale.lua',
+    '@slk-core/shared/locale.lua',
     'locales/en.lua',
     'locales/*.lua'
 }
 
 client_scripts{
-    '@PolyZone/client.lua',
-    '@PolyZone/BoxZone.lua',
-    '@PolyZone/ComboZone.lua',
+    '@slk-polyzones/client.lua',
+    '@slk-polyzones/BoxZone.lua',
+    '@slk-polyzones/ComboZone.lua',
     'client/deliveries.lua',
     'client/cornerselling.lua'
 }

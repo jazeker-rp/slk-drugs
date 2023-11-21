@@ -1,5 +1,6 @@
-# qb-drugs
-Drugs Script For QB-Core
+# slk-drugs
+
+Drugs Script For slk-core
 
 # License
 

@@ -1,4 +1,4 @@
-QBCore = exports['qb-core']:GetCoreObject()
+QBCore = exports['slk-core']:GetCoreObject()
 local currentDealer = nil
 local dealerIsHome = false
 local waitingDelivery = nil
@@ -12,7 +12,7 @@ local drugDeliveryZone
 
 AddStateBagChangeHandler('isLoggedIn', nil, function(_, _, value)
     if value then
-        QBCore.Functions.TriggerCallback('qb-drugs:server:RequestConfig', function(DealerConfig)
+        QBCore.Functions.TriggerCallback('slk-drugs:server:RequestConfig', function(DealerConfig)
             Config.Dealers = DealerConfig
         end)
         Wait(1000)
@@ -75,7 +75,7 @@ local function KnockDoorAnim(home)
                 Lang:t("info.fred_knock_message", {firstName = myData.charinfo.firstname})
             }
         })
-        exports['qb-core']:DrawText(Lang:t("info.other_dealers_button"), 'left')
+        exports['slk-core']:DrawText(Lang:t("info.other_dealers_button"), 'left')
         AwaitingInput()
     else
         TriggerServerEvent("InteractSound_SV:PlayOnSource", "knock_door", 0.2)
@@ -185,15 +185,15 @@ local function RequestDelivery()
         end
 
         QBCore.Functions.Notify(Lang:t("info.sending_delivery_email"), 'success')
-        TriggerServerEvent('qb-drugs:server:giveDeliveryItems', waitingDelivery)
+        TriggerServerEvent('slk-drugs:server:giveDeliveryItems', waitingDelivery)
         SetTimeout(2000, function()
-            TriggerServerEvent('qb-phone:server:sendNewMail', {
+            TriggerServerEvent('slk-phone:server:sendNewMail', {
                 sender = Config.Dealers[currentDealer]["name"],
                 subject = "Delivery Location",
                 message = Lang:t("info.delivery_info_email", {itemAmount = amount, itemLabel = QBCore.Shared.Items[waitingDelivery["itemData"]["item"]]["label"]}),
                 button = {
                     enabled = true,
-                    buttonEvent = "qb-drugs:client:setLocation",
+                    buttonEvent = "slk-drugs:client:setLocation",
                     buttonData = waitingDelivery
                 }
             })
@@ -233,10 +233,10 @@ local function DeliverStuff()
             disableMouse = false,
             disableCombat = true,
         }, {}, {}, {}, function() -- Done
-            TriggerServerEvent('qb-drugs:server:successDelivery', activeDelivery, true)
+            TriggerServerEvent('slk-drugs:server:successDelivery', activeDelivery, true)
             activeDelivery = nil
             if Config.UseTarget then
-                exports['qb-target']:RemoveZone('drugDeliveryZone')
+                exports['slk-target']:RemoveZone('drugDeliveryZone')
             else
                 drugDeliveryZone:destroy()
             end
@@ -244,7 +244,7 @@ local function DeliverStuff()
             ClearPedTasks(PlayerPedId())
         end)
     else
-        TriggerServerEvent('qb-drugs:server:successDelivery', activeDelivery, false)
+        TriggerServerEvent('slk-drugs:server:successDelivery', activeDelivery, false)
     end
     deliveryTimeout = 0
 end
@@ -262,22 +262,22 @@ function AwaitingInput()
         while waitingKeyPress do
             if not dealerIsHome then
                 if IsControlPressed(0, 38) then
-                    exports['qb-core']:KeyPressed()
+                    exports['slk-core']:KeyPressed()
                     KnockDealerDoor()
                 end
             elseif dealerIsHome then
                 if IsControlJustPressed(0, 38) then
                     OpenDealerShop()
-                    exports['qb-core']:KeyPressed()
+                    exports['slk-core']:KeyPressed()
                     waitingKeyPress = false
                 end
                 if IsControlJustPressed(0, 47) then
                     if waitingDelivery then
-                        exports['qb-core']:KeyPressed()
+                        exports['slk-core']:KeyPressed()
                         waitingKeyPress = false
                     end
                     RequestDelivery()
-                    exports['qb-core']:KeyPressed()
+                    exports['slk-core']:KeyPressed()
                     dealerIsHome = false
                     waitingKeyPress = false
                 end
@@ -291,7 +291,7 @@ function InitZones()
     if next(Config.Dealers) == nil then return end
     if Config.UseTarget then
         for k,v in pairs(Config.Dealers) do
-            exports["qb-target"]:AddBoxZone("dealer_"..k, vector3(v.coords.x, v.coords.y, v.coords.z), 1.5, 1.5, {
+            exports["slk-target"]:AddBoxZone("dealer_"..k, vector3(v.coords.x, v.coords.y, v.coords.z), 1.5, 1.5, {
                 name = "dealer_"..k,
                 heading = v.heading,
                 minZ = v.coords.z - 1,
@@ -373,15 +373,15 @@ function InitZones()
         dealerCombo:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 if not dealerIsHome then
-                    exports['qb-core']:DrawText(Lang:t("info.knock_button"),'left')
+                    exports['slk-core']:DrawText(Lang:t("info.knock_button"),'left')
                     AwaitingInput()
                 elseif dealerIsHome then
-                    exports['qb-core']:DrawText(Lang:t("info.other_dealers_button"), 'left')
+                    exports['slk-core']:DrawText(Lang:t("info.other_dealers_button"), 'left')
                     AwaitingInput()
                 end
             else
                 waitingKeyPress = false
-                exports['qb-core']:HideText()
+                exports['slk-core']:HideText()
             end
         end)
     end
@@ -389,22 +389,22 @@ end
 
 -- Events
 
-RegisterNetEvent('qb-drugs:client:RefreshDealers', function(DealerData)
+RegisterNetEvent('slk-drugs:client:RefreshDealers', function(DealerData)
     if not Config.UseTarget and dealerCombo then dealerCombo:destroy() end
     Config.Dealers = DealerData
     Wait(1000)
     InitZones()
 end)
 
-RegisterNetEvent('qb-drugs:client:updateDealerItems', function(itemData, amount)
-    TriggerServerEvent('qb-drugs:server:updateDealerItems', itemData, amount, currentDealer)
+RegisterNetEvent('slk-drugs:client:updateDealerItems', function(itemData, amount)
+    TriggerServerEvent('slk-drugs:server:updateDealerItems', itemData, amount, currentDealer)
 end)
 
-RegisterNetEvent('qb-drugs:client:setDealerItems', function(itemData, amount, dealer)
+RegisterNetEvent('slk-drugs:client:setDealerItems', function(itemData, amount, dealer)
     Config.Dealers[dealer]["products"][itemData.slot].amount = Config.Dealers[dealer]["products"][itemData.slot].amount - amount
 end)
 
-RegisterNetEvent('qb-drugs:client:setLocation', function(locationData)
+RegisterNetEvent('slk-drugs:client:setLocation', function(locationData)
     if activeDelivery then
         SetMapBlip(activeDelivery["coords"]["x"], activeDelivery["coords"]["y"])
         QBCore.Functions.Notify(Lang:t("error.pending_delivery"), 'error')
@@ -415,7 +415,7 @@ RegisterNetEvent('qb-drugs:client:setLocation', function(locationData)
     DeliveryTimer()
     SetMapBlip(activeDelivery["coords"].x, activeDelivery["coords"].y)
     if Config.UseTarget then
-        exports["qb-target"]:AddBoxZone('drugDeliveryZone', vector3(activeDelivery["coords"].x, activeDelivery["coords"].y, activeDelivery["coords"].z), 1.5, 1.5, {
+        exports["slk-target"]:AddBoxZone('drugDeliveryZone', vector3(activeDelivery["coords"].x, activeDelivery["coords"].y, activeDelivery["coords"].z), 1.5, 1.5, {
             name = 'drugDeliveryZone',
             heading = 0,
             minZ = activeDelivery["coords"].z - 1,
@@ -450,11 +450,11 @@ RegisterNetEvent('qb-drugs:client:setLocation', function(locationData)
         drugDeliveryZone:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 local inDeliveryZone = true
-                exports['qb-core']:DrawText(Lang:t("info.deliver_items_button", {itemAmount = activeDelivery["amount"], itemLabel = QBCore.Shared.Items[activeDelivery["itemData"]["item"]]["label"]}),'left')
+                exports['slk-core']:DrawText(Lang:t("info.deliver_items_button", {itemAmount = activeDelivery["amount"], itemLabel = QBCore.Shared.Items[activeDelivery["itemData"]["item"]]["label"]}),'left')
                 CreateThread(function()
                     while inDeliveryZone do
                         if IsControlJustPressed(0, 38) then
-                            exports['qb-core']:KeyPressed()
+                            exports['slk-core']:KeyPressed()
                             DeliverStuff()
                             waitingDelivery = nil
                             break
@@ -464,27 +464,27 @@ RegisterNetEvent('qb-drugs:client:setLocation', function(locationData)
                 end)
             else
                 inDeliveryZone = false
-                exports['qb-core']:HideText()
+                exports['slk-core']:HideText()
             end
         end)
     end
 end)
 
-RegisterNetEvent('qb-drugs:client:sendDeliveryMail', function(type, deliveryData)
+RegisterNetEvent('slk-drugs:client:sendDeliveryMail', function(type, deliveryData)
     if type == 'perfect' then
-        TriggerServerEvent('qb-phone:server:sendNewMail', {
+        TriggerServerEvent('slk-phone:server:sendNewMail', {
             sender = Config.Dealers[deliveryData["dealer"]]["name"],
             subject = "Delivery",
             message = Lang:t("info.perfect_delivery", {dealerName = Config.Dealers[deliveryData["dealer"]]["name"]})
         })
     elseif type == 'bad' then
-        TriggerServerEvent('qb-phone:server:sendNewMail', {
+        TriggerServerEvent('slk-phone:server:sendNewMail', {
             sender = Config.Dealers[deliveryData["dealer"]]["name"],
             subject = "Delivery",
             message = Lang:t("info.bad_delivery")
         })
     elseif type == 'late' then
-        TriggerServerEvent('qb-phone:server:sendNewMail', {
+        TriggerServerEvent('slk-phone:server:sendNewMail', {
             sender = Config.Dealers[deliveryData["dealer"]]["name"],
             subject = "Delivery",
             message = Lang:t("info.late_delivery")
